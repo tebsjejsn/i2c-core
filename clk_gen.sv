@@ -7,6 +7,7 @@ module clk_gen
 ) (
     input  logic clk,
     input  logic reset,
+    input  logic enable,
     output logic scl
 );
     localparam DIVIDER = CLK_FREQ / MODE / 2;
@@ -19,12 +20,18 @@ module clk_gen
             count <= '0;
             sclTrack <= 1'b1;
         end
-        else if (count == DIVIDER - 1) begin
-            count <= '0;
-            sclTrack <= ~sclTrack;
+        else if (enable) begin
+            if (count == DIVIDER - 1) begin
+                count <= '0;
+                sclTrack <= ~sclTrack;
+            end
+            else
+                count <= count + 1;
         end
-        else 
-            count <= count + 1;
+        else begin
+            count <= '0;
+            sclTrack <= 1'b1;
+        end
     end
 
     assign scl = (sclTrack == 1'b0) ? 1'b0 : 1'bz;
